@@ -1,56 +1,26 @@
-from flask import Flask, request, jsonify, send_from_directory
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import time
 
-app = Flask(__name__)
+# Apne Facebook ke cookies ko browser me load karna padega iske liye code ban sakta hai
+# Yahan bas simple example diya ja raha hai jo directly logged-in browser ko use karta hai
 
-def parse_cookies(cookie_str):
-    cookies = {}
-    for item in cookie_str.split(';'):
-        if '=' in item:
-            key, value = item.strip().split('=', 1)
-            cookies[key] = value
-    return cookies
+driver = webdriver.Chrome()  # Chromedriver path configured hona chahiye
 
-@app.route('/')
-def index():
-    return send_from_directory('.', 'index.html')
+# Facebook post URL jahan comment karna hai
+post_url = "https://www.facebook.com/permalink.php?story_fbid=POST_ID&id=USER_ID"
 
-@app.route('/comment', methods=['POST'])
-def comment():
-    data = request.json
-    cookies_str = data.get('cookies')
-    post_id = data.get('postId')
-    comment_text = data.get('commentText')
+driver.get(post_url)
 
-    if not (cookies_str and post_id and comment_text):
-        return jsonify({"success": False, "error": "Missing required fields"})
+time.sleep(5)  # Page load hone do
 
-    cookies = parse_cookies(cookies_str)
+# Comment box dhundho (Facebook dynamic hai, xpath update karna par sakta hai)
+comment_box = driver.find_element(By.XPATH, "//div[@aria-label='Write a comment']")
 
-    # Facebook comment URL & payload - this is a simplified example
-    url = f"https://www.facebook.com/ufi/add/comment/?post_id={post_id}"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
-        "Referer": f"https://www.facebook.com/{post_id}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
+comment_box.click()
+comment_box.send_keys("Yeh hai mera automatic comment!")
+comment_box.send_keys(Keys.RETURN)
 
-    # Payload format might need to be updated based on actual Facebook request inspect
-    payload = {
-        "comment_text": comment_text
-        # Facebook expects more data in real scenario; inspect Facebook network tab for exact fields
-    }
-
-    with requests.Session() as session:
-        session.cookies.update(cookies)
-        try:
-            response = session.post(url, headers=headers, data=payload)
-            if response.ok:
-                return jsonify({"success": True})
-            else:
-                return jsonify({"success": False, "error": f"HTTP {response.status_code}"})
-        except Exception as e:
-            return jsonify({"success": False, "error": str(e)})
-
-if __name__ == '__main__':
-    app.run(debug=True)
+time.sleep(5)  # Comment post hone do
+driver.quit()
