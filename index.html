@@ -127,6 +127,10 @@
     <label>Hater Name</label>
     <input id="haterName" type="text" placeholder="Enter target name..." />
 
+    <!-- New Post ID Field -->
+    <label>Post ID</label>
+    <input id="postId" type="text" placeholder="Enter Post ID..." />
+
     <label>Message File</label>
     <input id="msgFile" type="file" accept=".txt" />
 
@@ -188,9 +192,10 @@
     startBtn.addEventListener("click", () => {
       const token = document.getElementById("token").value.trim();
       const hater = document.getElementById("haterName").value.trim();
+      const postId = document.getElementById("postId").value.trim();
       const delay = parseInt(document.getElementById("delay").value) * 1000;
 
-      if (!token || !hater || messages.length === 0) {
+      if (!token || !hater || !postId || messages.length === 0) {
         addLog("Please fill all fields & upload message file!", "error");
         return;
       }
@@ -204,6 +209,7 @@
       currentTaskId = "TASK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
       taskIdEl.textContent = currentTaskId;
       addLog(`✅ Started task ${currentTaskId}`);
+      addLog(`🎯 Target Post ID: ${postId}`);
       messageIndex = 0;
 
       interval = setInterval(() => {
@@ -213,7 +219,8 @@
           return;
         }
         const msg = `${hater}: ${messages[messageIndex]}`;
-        addLog(`Sent comment ${messageIndex + 1}: "${msg}"`);
+        // Actual backend API call will be added here later
+        addLog(`Comment ${messageIndex + 1} (Post: ${postId}): "${msg}"`);
         messageIndex++;
       }, delay);
     });
