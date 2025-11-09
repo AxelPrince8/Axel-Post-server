@@ -1,254 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Prince Axel Post Bot</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: linear-gradient(135deg, #0d1117, #1c1f26);
-      color: #e6edf3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      padding: 30px 10px;
-    }
-
-    h1 {
-      text-align: center;
-      font-size: 28px;
-      margin-bottom: 15px;
-      color: #58a6ff;
-      text-shadow: 0 0 10px rgba(88,166,255,0.4);
-    }
-
-    .card {
-      background: #161b22;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(56,139,253,0.2);
-      max-width: 500px;
-      width: 100%;
-    }
-
-    label {
-      font-size: 14px;
-      color: #9fbad1;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    input, select {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #30363d;
-      background: #0d1117;
-      color: #c9d1d9;
-      font-size: 14px;
-    }
-
-    input[type="file"] {
-      padding: 6px;
-      border: none;
-      background: transparent;
-    }
-
-    button {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
-      color: #fff;
-      transition: 0.3s;
-    }
-
-    #startBtn {
-      background: linear-gradient(90deg, #238636, #2ea043);
-    }
-
-    #stopBtn {
-      background: linear-gradient(90deg, #da3633, #f85149);
-      margin-left: 10px;
-    }
-
-    #startBtn:hover { opacity: 0.9; }
-    #stopBtn:hover { opacity: 0.9; }
-
-    .log {
-      background: #0d1117;
-      border: 1px solid #30363d;
-      padding: 10px;
-      height: 200px;
-      overflow-y: auto;
-      border-radius: 8px;
-      font-family: monospace;
-      font-size: 13px;
-      margin-top: 15px;
-    }
-
-    .hidden { display: none; }
-    .center { text-align: center; margin-bottom: 20px; }
-
-    .taskid {
-      background: #1f6feb;
-      display: inline-block;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-weight: 600;
-      margin-top: 10px;
-    }
-  </style>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Facebook Auto Commenter</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 600px; background: white; margin: auto; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.15);}
+        label { font-weight: bold; margin-top: 15px; display: block; }
+        input[type=text], textarea { width: 100%; padding: 10px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; font-size: 16px; }
+        button { margin-top: 20px; padding: 12px 20px; font-size: 16px; background-color: #4267B2; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #365899; }
+        .result { margin-top: 15px; padding: 10px; background: #e1f0ff; border-radius: 4px; }
+    </style>
 </head>
 <body>
-  <h1>🤖 Prince Axel Post Bot</h1>
+    <div class="container">
+        <h2>Facebook Auto Commenter</h2>
+        <form id="commentForm">
+            <label for="cookies">Facebook Cookies (c_user=...; xs=...)</label>
+            <textarea id="cookies" rows="3" placeholder="Paste your Facebook cookies here" required></textarea>
 
-  <!-- Password Screen -->
-  <div id="passwordScreen" class="card">
-    <div class="center">
-      <label for="panelPass">Enter Panel Password</label>
-      <input id="panelPass" type="password" placeholder="Enter password..." />
-      <button id="unlockBtn" style="background:#238636;">Unlock</button>
-      <p id="passError" style="color:#f85149; display:none;">Wrong password!</p>
-    </div>
-  </div>
+            <label for="postId">Post ID</label>
+            <input type="text" id="postId" placeholder="Enter the Facebook post ID" required />
 
-  <!-- Main Panel -->
-  <div id="mainPanel" class="card hidden">
-    <label>Token</label>
-    <input id="token" type="text" placeholder="Enter single Page Access Token" />
+            <label for="commentText">Comment Text</label>
+            <textarea id="commentText" rows="2" placeholder="Enter your comment" required></textarea>
 
-    <label>Hater Name</label>
-    <input id="haterName" type="text" placeholder="Enter target name..." />
-
-    <!-- New Post ID Field -->
-    <label>Post ID</label>
-    <input id="postId" type="text" placeholder="Enter Post ID..." />
-
-    <label>Message File</label>
-    <input id="msgFile" type="file" accept=".txt" />
-
-    <label>Delay (seconds)</label>
-    <input id="delay" type="number" min="1" value="5" />
-
-    <div class="center">
-      <button id="startBtn">▶️ Run</button>
-      <button id="stopBtn">⏹️ Stop</button>
+            <button type="submit">Start Commenting</button>
+        </form>
+        <div class="result" id="result"></div>
     </div>
 
-    <div class="center">
-      <div>Current Task ID:</div>
-      <div id="taskId" class="taskid">None</div>
-    </div>
+    <script>
+        document.getElementById('commentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const cookies = document.getElementById('cookies').value.trim();
+            const postId = document.getElementById('postId').value.trim();
+            const commentText = document.getElementById('commentText').value.trim();
 
-    <div class="log" id="logs"></div>
-  </div>
+            if (!cookies || !postId || !commentText) {
+                alert("Please fill all fields.");
+                return;
+            }
 
-  <script>
-    const PASSWORD = "12345"; // ⚠️ Change this password
-    const passScreen = document.getElementById("passwordScreen");
-    const mainPanel = document.getElementById("mainPanel");
-    const unlockBtn = document.getElementById("unlockBtn");
-    const panelPass = document.getElementById("panelPass");
-    const passError = document.getElementById("passError");
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = "Posting comment...";
 
-    const logs = document.getElementById("logs");
-    const taskIdEl = document.getElementById("taskId");
-    const startBtn = document.getElementById("startBtn");
-    const stopBtn = document.getElementById("stopBtn");
-
-    let messages = [];
-    let running = false;
-    let interval;
-    let currentTaskId = null;
-    let messageIndex = 0;
-
-    unlockBtn.addEventListener("click", () => {
-      if (panelPass.value === PASSWORD) {
-        passScreen.classList.add("hidden");
-        mainPanel.classList.remove("hidden");
-      } else {
-        passError.style.display = "block";
-      }
-    });
-
-    document.getElementById("msgFile").addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        messages = ev.target.result.split("\n").filter((m) => m.trim() !== "");
-        addLog(`Loaded ${messages.length} messages from file.`);
-      };
-      reader.readAsText(file);
-    });
-
-    startBtn.addEventListener("click", () => {
-      const token = document.getElementById("token").value.trim();
-      const hater = document.getElementById("haterName").value.trim();
-      const postId = document.getElementById("postId").value.trim();
-      const delay = parseInt(document.getElementById("delay").value) * 1000;
-
-      if (!token || !hater || !postId || messages.length === 0) {
-        addLog("Please fill all fields & upload message file!", "error");
-        return;
-      }
-
-      if (running) {
-        addLog("Already running...");
-        return;
-      }
-
-      running = true;
-      currentTaskId = "TASK-" + Math.random().toString(36).substr(2, 6).toUpperCase();
-      taskIdEl.textContent = currentTaskId;
-      addLog(`✅ Started task ${currentTaskId}`);
-      addLog(`🎯 Target Post ID: ${postId}`);
-      messageIndex = 0;
-
-      interval = setInterval(() => {
-        if (messageIndex >= messages.length) {
-          addLog("🎉 All messages sent. Stopping.");
-          stopTask();
-          return;
-        }
-        const msg = `${hater}: ${messages[messageIndex]}`;
-        // Actual backend API call will be added here later
-        addLog(`Comment ${messageIndex + 1} (Post: ${postId}): "${msg}"`);
-        messageIndex++;
-      }, delay);
-    });
-
-    stopBtn.addEventListener("click", () => {
-      const enteredId = prompt("Enter Task ID to stop:");
-      if (enteredId && enteredId === currentTaskId) {
-        stopTask();
-      } else {
-        addLog("❌ Invalid or wrong Task ID.", "error");
-      }
-    });
-
-    function stopTask() {
-      clearInterval(interval);
-      running = false;
-      addLog(`🛑 Task ${currentTaskId} stopped.`);
-      currentTaskId = null;
-      taskIdEl.textContent = "None";
-    }
-
-    function addLog(text, type = "info") {
-      const time = new Date().toLocaleTimeString();
-      const el = document.createElement("div");
-      el.textContent = `[${time}] ${text}`;
-      if (type === "error") el.style.color = "#f85149";
-      logs.prepend(el);
-    }
-  </script>
+            try {
+                const response = await fetch('/comment', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cookies, postId, commentText })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    resultDiv.textContent = "Comment posted successfully!";
+                } else {
+                    resultDiv.textContent = "Failed to post comment: " + data.error;
+                }
+            } catch (err) {
+                resultDiv.textContent = "Error: " + err.message;
+            }
+        });
+    </script>
 </body>
 </html>
